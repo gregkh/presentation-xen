@@ -1,0 +1,78 @@
+This presentation will cover how to use kexec in PV domU, with no
+changes to dom0 or Xen, in order to be able to boot your own kernel, no
+matter what the hosting provider is forcing you to run. This is good to
+be able to take advantage of new kernel features that have not hit the
+enterprise distributions yet (cgroups, O_TMPFILE, etc.and to fix known
+kernel problems as soon as you are aware of them, no need to wait for
+your overworked hosting provider to update the kernel for you. This talk
+will go into how the kernel was modified in order to get this to work
+properly, and how the kexec tools were changed to make it happen. In the
+case that this all turns out to not work at all, I will discuss why this
+is a failed plan that no one should ever waste their time on again. 
+
+
+
+
+
+
+kexec
+
+	Ability to load and run Linux from within Linux
+	No need to reboot back to the BIOS/hypervisor
+	Must faster boot time
+	commonly used for kdump
+
+kdump
+	kernel crashes
+	kexecs kdump kernel
+	kdump snapshots memory, writes it to storage
+	reboots
+
+kexec and xen
+	works today in some configurations
+	dom0 only
+	xen dom0 -> xen dom0
+	xen dom0 -> linux
+	linux -> xen dom0
+
+We want domU Linux kexec
+
+Why?
+
+Linux as a bootloader
+
+Creating system images for cloud providers is hard
+	no common tools
+	each vendor has special configurations
+	boot command line changes hard
+	openstack is not going to save the world
+
+ChromeOS "Safe" system updates:
+	small stable bootloader, picks the image to run
+	two copies of system images, read only
+		fallback if one fails
+	one big dynamic partition with data
+
+	bootloader picks system image to run
+
+Can't change bootloader command line options for cloud providers easily,
+if at all.
+
+	Make Linux be the bootloader
+	small bootloader partition
+		- kernel boots
+		- reads partitions
+		- mounts good one, kexec kernel in that partition
+		- less than a second delay.
+	Works wonderfully on bare metal, ram disk (PXE), and KVM.
+	Not Xen
+	Xen sucks
+
+Xen domU kexec support
+
+Written originally by Daniel Kiper <dkiper@net-space.pl>, sponsored by
+Acunu Ltd.  Written to support kdump in EC2 images.  Old instance of Xen
+(2?), very old kernel (2.16 based.)
+
+
+
